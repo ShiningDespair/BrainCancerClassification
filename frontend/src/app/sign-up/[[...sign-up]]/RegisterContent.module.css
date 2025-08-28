@@ -1,0 +1,25 @@
+/* src/app/(auth)/register/RegisterContent.module.css */
+
+.gradientBg {
+  background: linear-gradient(
+    -45deg,
+    #0F172A, /* Ana Renk */
+    #1A3A3A, /* ▼▼▼ DEĞİŞİKLİK BURADA ▼▼▼ - Derin ve koyu yeşil tonu */
+    #1E293B, /* İkincil Renk */
+    #1E1B35  /* Akıcı bir döngü için derin indigo/mor */
+  );
+  background-size: 400% 400%;
+  animation: gradientAnimation 20s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

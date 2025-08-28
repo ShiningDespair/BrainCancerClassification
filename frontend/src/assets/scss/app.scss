@@ -1,0 +1,169 @@
+/* src/assets/app.scss */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// @font-face kuralları ile her bir font dosyasını tanımlıyoruz.
+
+// --- Regular ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-Regular.ttf') format('truetype');
+  font-weight: 400; // Normal
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- Light ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-Light.ttf') format('truetype');
+  font-weight: 300; // Light
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- ExtraLight ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-ExtraLight.ttf') format('truetype');
+  font-weight: 200; // ExtraLight
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- Medium ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-Medium.ttf') format('truetype');
+  font-weight: 500; // Medium
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- SemiBold ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-SemiBold.ttf') format('truetype');
+  font-weight: 600; // SemiBold
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- Bold ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-Bold.ttf') format('truetype');
+  font-weight: 700; // Bold
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- ExtraBold ---
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-ExtraBold.ttf') format('truetype');
+  font-weight: 800; // ExtraBold
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('../fonts/Spectral-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+// --- RENK PALETİ VE GLOBAL STİLLER ---
+:root {
+  // Fontu CSS değişkeni olarak tanımlıyoruz
+ --font-spectral: 'Spectral', serif;
+
+ // Ana ve yan renkleri CSS değişkenleri olarak tanımlıyoruz
+  --color-primary: #0F172A;      /* Ana Arka Plan (Çok Koyu Lacivert - Slate 900) */
+  --color-secondary: #1E293B;    /* İkincil Arka Plan (Koyu Lacivert - Slate 800) */
+  --color-accent: #267698;       /* Vurgu Rengi (Canlı Gök Mavisi - Sky 400) */
+  --color-accent-light: #416c81; /* Vurgu Renginin Açık Tonu (Sky 300) */
+  --color-text-primary: #F1F5F9; /* Ana Metin Rengi (Neredeyse Beyaz - Slate 100) */
+  --color-text-secondary: #94A3B8;/* İkincil Metin Rengi (Soluk Gri - Slate 400) */
+  --color-border: #334155;      /* Kenarlık Rengi (Koyu Gri/Mavi - Slate 700) */
+}
+
+body {
+ font-family: var(--font-spectral);
+ background-color: var(--color-primary);
+ color: var(--color-text-primary);
+
+ // Daha akıcı bir kaydırma deneyimi için
+ -webkit-font-smoothing: antialiased;
+ -moz-osx-font-smoothing: grayscale;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #ffffff !important; 
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  &::after {
+    font-size: 18px !important;
+    font-weight: bold;
+  }
+}
+
+.swiper-scrollbar-drag {
+  background-color: #555c6c !important; 
+}
