@@ -1,13 +1,40 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight } from '@phosphor-icons/react';
-import { toolsData } from '@/data/toolsData';
+import { getTools } from '@/services/apiService';
+import { ToolType } from '@/types/Types';
 import ModelDetail from '@/components/Model/ModelDetail';
+import * as PhosphorIcons from '@phosphor-icons/react';
+import { ImageUrlFormatter } from '@/utils/ImageUrlFormatter';
 
 const HomePage = () => {
+  const [tools, setTools] = useState<ToolType[]>([]);
+
+  useEffect(() => {
+    const fetchTools = async () => {
+      try {
+        const data = await getTools();
+        setTools(data);
+      } catch (error) {
+        console.error("Failed to fetch tools:", error);
+      }
+    };
+    fetchTools();
+  }, []);
+
+  // HATA 1 DÜZELTİLDİ
+  const renderIcon = (iconName: string) => {
+    const IconComponent = PhosphorIcons[iconName as keyof typeof PhosphorIcons];
+
+    if (IconComponent && typeof IconComponent === 'function') {
+      const ValidIcon = IconComponent as React.ElementType;
+      return <ValidIcon className="h-8 w-8 text-text-secondary mr-4" weight="light" />;
+    }
+    
+    return null; 
+  };
+
   return (
-    // Arka plan ve ana metin rengi class'larını kaldırdık, çünkü artık body'den geliyorlar.
-    // min-h-screen kalarak sayfanın en az ekran boyu kadar olmasını sağlıyoruz.
     <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
 
@@ -45,10 +72,10 @@ const HomePage = () => {
           </div>
 
           <div className="space-y-20">
-            {toolsData.map((tool) => (
+            {tools.map((tool) => (
               <div key={tool.title}>
                 <div className="flex items-center mb-4">
-                  <tool.icon className="h-8 w-8 text-text-secondary mr-4" weight="light" />
+                  {renderIcon(tool.icon)}
                   <h3 className="text-2xl font-semibold text-text-primary">{tool.title}</h3>
                 </div>
                 <p className="text-text-secondary text-base leading-relaxed mb-6 ml-12">
@@ -57,8 +84,9 @@ const HomePage = () => {
 
                 <div className="ml-12">
                   <div className="border-2 border-dashed border-border rounded-lg p-4">
-                    {tool.images && tool.images.length > 0 ? (
-                      <ModelDetail modelImages={tool.images} />
+                    {tool.toolImages && tool.toolImages.length > 0 ? (
+                      // HATA 2 & 3, doğru tiplerle artık çalışacaktır.
+                      <ModelDetail modelImages={tool.toolImages.map(img => ({ id: img.id, src: ImageUrlFormatter.formatGoogleDriveUrl(img.src), alt: img.alt || '' }))} />
                     ) : (
                       <div className="p-8 text-center">
                         <p className="text-sm text-text-secondary">
@@ -68,7 +96,7 @@ const HomePage = () => {
                     )}
                   </div>
 
-                  <a href={tool.href} className="inline-flex items-center text-sm font-medium text-text-secondary hover:text-text-primary mt-4 group">
+                  <a href={tool.href || '#'} className="inline-flex items-center text-sm font-medium text-text-secondary hover:text-text-primary mt-4 group">
                     Daha Fazla Bilgi
                     <ArrowRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
                   </a>
@@ -77,7 +105,6 @@ const HomePage = () => {
             ))}
           </div>
         </section>
-
       </main>
     </div>
   );

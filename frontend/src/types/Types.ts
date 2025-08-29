@@ -5,19 +5,43 @@ export type ImageWithAlt = {
   alt: string;
 };
 
+export interface PredictionResultType {
+  prediction: number[]; 
+}
+
 export type ModelImagesType = ImageInfo[];
 
-export type ToolType = {
-  icon: React.ElementType;
+export interface ToolImageType {
+  id: number;
+  src: string;
+  alt: string;
+}
+
+export interface ToolType {
+  id: number;
+  icon: string;
   title: string;
-  description: string;
-  href: string;
-  images?: ModelImagesType; 
+  description: string | null;
+  href: string | null;
+  toolImages: ToolImageType[];
+}
+
+export type PredictionModelType = {
+  id: number;
+  modelName: string;
+  version: string;
+  description: string | null;
+  filePath: string | null;
+  framework: string;
+  inputShape: string | null;
+  numClasses: number;
+  labels: string | null;
+  createdAt: string;
 };
 
 export type ImageInfo = {
   id: string | number;
-  src: string | StaticImageData; 
+  src: string | StaticImageData;
   alt: string;
 };
 

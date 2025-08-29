@@ -12,6 +12,13 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com.com',
+        port: '',
+        pathname: '/**',
+      },
+
     ],
   },
 };
