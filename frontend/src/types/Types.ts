@@ -6,15 +6,17 @@ export type ImageWithAlt = {
 };
 
 export interface PredictionResultType {
-  prediction: number[]; 
+  predictedLabel: string;
+  confidence: number;
+  scores: number[];
 }
 
 export type ModelImagesType = ImageInfo[];
 
 export interface ToolImageType {
-  id: number;
-  src: string;
-  alt: string;
+    id: number;
+    src: string; // The URL from Cloudinary
+    alt: string;
 }
 
 export interface ToolType {
@@ -25,6 +27,19 @@ export interface ToolType {
   href: string | null;
   toolImages: ToolImageType[];
 }
+
+export interface RegressionResult {
+    predictedLabel: string;
+    predictedValue: number;
+}
+
+export interface ClassificationResult {
+    predictedLabel: string;
+    confidence: number;
+    scores: number[];
+}
+
+export type PredictionResult = ClassificationResult | RegressionResult;
 
 export type PredictionModelType = {
   id: number;
@@ -37,11 +52,12 @@ export type PredictionModelType = {
   numClasses: number;
   labels: string | null;
   createdAt: string;
+  accuracy: number;
 };
 
 export type ImageInfo = {
-  id: string | number;
-  src: string | StaticImageData;
-  alt: string;
+    id: string | number;
+    src: string; // Corrected to only accept a string (the publicId)
+    alt: string;
 };
 

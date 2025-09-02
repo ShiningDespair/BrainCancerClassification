@@ -1,3 +1,5 @@
+// frontend/src/app/Homepage/HomepageContent.tsx
+
 "use client";
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from '@phosphor-icons/react';
@@ -5,7 +7,8 @@ import { getTools } from '@/services/apiService';
 import { ToolType } from '@/types/Types';
 import ModelDetail from '@/components/Model/ModelDetail';
 import * as PhosphorIcons from '@phosphor-icons/react';
-import { ImageUrlFormatter } from '@/utils/ImageUrlFormatter';
+import { CldImage } from 'next-cloudinary';
+import { getCloudinaryPublicId } from '@/utils/cloudinaryUtils';
 
 const HomePage = () => {
   const [tools, setTools] = useState<ToolType[]>([]);
@@ -22,7 +25,6 @@ const HomePage = () => {
     fetchTools();
   }, []);
 
-  // HATA 1 DÜZELTİLDİ
   const renderIcon = (iconName: string) => {
     const IconComponent = PhosphorIcons[iconName as keyof typeof PhosphorIcons];
 
@@ -85,8 +87,12 @@ const HomePage = () => {
                 <div className="ml-12">
                   <div className="border-2 border-dashed border-border rounded-lg p-4">
                     {tool.toolImages && tool.toolImages.length > 0 ? (
-                      // HATA 2 & 3, doğru tiplerle artık çalışacaktır.
-                      <ModelDetail modelImages={tool.toolImages.map(img => ({ id: img.id, src: ImageUrlFormatter.formatGoogleDriveUrl(img.src), alt: img.alt || '' }))} />
+                      <ModelDetail
+                        modelImages={tool.toolImages.map(img => {
+                          const publicId = getCloudinaryPublicId(img.src);
+                          return { id: img.id, src: publicId || '', alt: img.alt || '' };
+                        })}
+                      />
                     ) : (
                       <div className="p-8 text-center">
                         <p className="text-sm text-text-secondary">

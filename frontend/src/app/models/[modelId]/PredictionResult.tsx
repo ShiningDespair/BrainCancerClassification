@@ -12,9 +12,10 @@ type Props = {
   result: Prediction[] | null;
   isProcessing: boolean;
   labels: string[];
+  isRegression: boolean; // 💡 New prop to handle regression
 };
 
-const PredictionResult = ({ result, isProcessing, labels }: Props) => {
+const PredictionResult = ({ result, isProcessing, labels, isRegression }: Props) => {
   const renderContent = () => {
     if (isProcessing) {
       return (
@@ -26,7 +27,7 @@ const PredictionResult = ({ result, isProcessing, labels }: Props) => {
       );
     }
 
-    if (!result) {
+    if (!result || result.length === 0) {
       return (
         <div className="text-center">
           <ChartBar size={48} className="mb-4 text-text-secondary" />
@@ -35,7 +36,21 @@ const PredictionResult = ({ result, isProcessing, labels }: Props) => {
       );
     }
     
-    // En yüksek skoru bul
+    // Check if it's a regression result
+    if (isRegression) {
+      const regressionResult = result[0];
+      return (
+        <div className="text-center">
+          <div className="mb-6 p-4 rounded-lg bg-accent/10 border border-accent">
+            <p className="text-sm text-accent">Tahmin Edilen Değer</p>
+            <p className="text-2xl font-bold text-text-primary">{regressionResult.label}</p>
+            <p className="text-lg text-text-primary">Skor: {regressionResult.confidence.toFixed(2)}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // This is the classification result (original code)
     const topResult = result[0];
 
     return (

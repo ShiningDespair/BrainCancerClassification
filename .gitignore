@@ -491,3 +491,8 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+IU-ML Clinic-Backend/ML-Models/ResNet50_SavedModel/variables/variables.data-00000-of-00001
+IU-ML Clinic-Backend/ML-Models/ResNet50_best_tumor_classifier.onnx
+IU-ML Clinic-Backend/ML-Models/ResNet50_SavedModel/keras_metadata.pb
+IU-ML Clinic-Backend/ML-Models/ResNet50_SavedModel/saved_model.pb
+IU-ML Clinic-Backend/ML-Models/ResNet50_SavedModel/variables/variables.index

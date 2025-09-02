@@ -1,28 +1,35 @@
 ﻿using OpenCvSharp;
+using System;
 using System.IO;
 
 namespace BrainCancerClassification.Helpers
 {
     public static class ImagePreprocessingHelper
     {
-        public static Mat PreprocessImage(Stream imageStream, int width, int height)
+        public static Mat PreprocessImage(Stream imageStream, int targetWidth, int targetHeight)
         {
             using (var memoryStream = new MemoryStream())
             {
                 imageStream.CopyTo(memoryStream);
-                byte[] imageBytes = memoryStream.ToArray();
+                byte[] imageData = memoryStream.ToArray();
 
-                Mat image = Cv2.ImDecode(imageBytes, ImreadModes.Color);
+                if (imageData == null || imageData.Length == 0)
+                {
+                    throw new ArgumentException("Image data is empty. The uploaded file might be empty or corrupt.");
+                }
 
-                // Resize the image
-                Mat resizedImage = new Mat();
-                Cv2.Resize(image, resizedImage, new Size(width, height));
+                Mat image = Cv2.ImDecode(imageData, ImreadModes.Color);
+                if (image == null || image.Empty())
+                {
+                    throw new ArgumentException("The uploaded file could not be decoded as a valid image. It might be corrupt or in an unsupported format.");
+                }
 
-                // Normalize the image (example: scale pixel values to [0, 1])
-                Mat normalizedImage = new Mat();
-                resizedImage.ConvertTo(normalizedImage, MatType.CV_32F, 1.0 / 255.0);
+                var resizedImage = new Mat();
+                Cv2.Resize(image, resizedImage, new Size(targetWidth, targetHeight));
 
-                return normalizedImage;
+                image.Dispose();
+
+                return resizedImage;
             }
         }
     }

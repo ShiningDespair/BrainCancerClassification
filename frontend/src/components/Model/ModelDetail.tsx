@@ -7,7 +7,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
 import 'swiper/css/free-mode';
-import Image from 'next/image';
+import { CldImage } from 'next-cloudinary'; // 💡 Import CldImage
 import { ModelImagesType } from '@/types/Types';
 
 type ModelDetailProps = {
@@ -32,8 +32,8 @@ const ModelDetail: React.FC<ModelDetailProps> = ({ modelImages }) => {
       {modelImages.map((imageInfo) => (
         <SwiperSlide key={imageInfo.id} style={{ width: '18rem' }}> 
           <div className="relative aspect-square w-full">
-            <Image
-              src={imageInfo.src}
+            <CldImage 
+              src={imageInfo.src} 
               alt={imageInfo.alt}
               fill
               className="rounded-lg object-cover"

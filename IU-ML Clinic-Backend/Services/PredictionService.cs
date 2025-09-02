@@ -1,12 +1,14 @@
-﻿using BrainCancerClassification.Models;
+﻿using BrainCancerClassification.DTOs;
+using BrainCancerClassification.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
 using OpenCvSharp;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Tensorflow;
-using Tensorflow.Keras.Engine;
-using static Tensorflow.Binding;
 
 namespace BrainCancerClassification.Services
 {
@@ -19,7 +21,7 @@ namespace BrainCancerClassification.Services
             _context = context;
         }
 
-        public async Task<float[]> PredictAsync(int modelId, Mat image)
+        public async Task<PredictionResultDto> PredictAsync(int modelId, Mat image)
         {
             var model = await _context.PredictionModels.FindAsync(modelId);
             if (model == null || string.IsNullOrEmpty(model.FilePath))
@@ -27,27 +29,60 @@ namespace BrainCancerClassification.Services
                 throw new Exception("Model not found or file path is not specified.");
             }
 
-            // Load the model
-            var loadedModel = tf.keras.models.load_model(model.FilePath);
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            var fullModelPath = Path.Combine(basePath, model.FilePath);
 
-            // Convert Mat to Tensor
-            var tensor = MatToTensor(image);
+            if (!File.Exists(fullModelPath))
+            {
+                throw new FileNotFoundException($"Model file not found at: {fullModelPath}");
+            }
 
-            // Make prediction
-            var prediction = loadedModel.predict(tensor);
-            var predictionArray = prediction.ToArray<float>();
+            using var session = new InferenceSession(fullModelPath);
 
-            return predictionArray;
+            var inputName = session.InputMetadata.Keys.First();
+            var outputName = session.OutputMetadata.Keys.First();
+
+            var inputTensor = MatToTensor(image);
+
+            var inputs = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor(inputName, inputTensor)
+            };
+
+            using var results = session.Run(inputs);
+
+            var outputTensor = results.First().AsTensor<float>();
+            var predictionArray = outputTensor.ToArray();
+
+            var maxScore = predictionArray.Max();
+            var maxIndex = predictionArray.ToList().IndexOf(maxScore);
+            var labels = model.Labels?.Split(',') ?? new string[] { "Unknown" };
+            var predictedLabel = labels.Length > maxIndex ? labels[maxIndex].Trim() : "Error: Label index out of range.";
+
+            return new PredictionResultDto
+            {
+                PredictedLabel = predictedLabel,
+                Confidence = maxScore,
+                Scores = predictionArray
+            };
         }
 
-        private Tensor MatToTensor(Mat image)
+        private DenseTensor<float> MatToTensor(Mat image)
         {
+            var height = image.Height;
+            var width = image.Width;
+            var channels = image.Channels();
+
+            var dimensions = new[] { 1, height, width, channels };
+            var floatArray = new float[height * width * channels];
+
             var imageBytes = image.ToBytes();
-            var shape = new long[] { 1, image.Height, image.Width, image.CvtColor(ColorConversionCodes.BGR2GRAY).Channels() };
-            var tensor = tf.constant(imageBytes, dtype: tf.int8);
-            tensor = tf.image.decode_image(tensor, channels: 3);
-            tensor = tf.expand_dims(tensor, 0); // Add batch dimension
-            return tensor;
+            for (int i = 0; i < imageBytes.Length; i++)
+            {
+                floatArray[i] = imageBytes[i] / 255.0f;
+            }
+
+            return new DenseTensor<float>(floatArray, dimensions);
         }
     }
 }

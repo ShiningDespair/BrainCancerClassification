@@ -15,5 +15,7 @@ public partial class Tool
 
     public string? Href { get; set; }
 
+    public virtual ICollection<PredictionModel> PredictionModels { get; set; } = new List<PredictionModel>();
+
     public virtual ICollection<ToolImage> ToolImages { get; set; } = new List<ToolImage>();
 }

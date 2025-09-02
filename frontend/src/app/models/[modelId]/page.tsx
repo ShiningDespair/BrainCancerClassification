@@ -4,10 +4,10 @@ import React, { useState, useEffect, use } from 'react';
 import ImageUploader from './ImageUploader';
 import PredictionResult from './PredictionResult';
 import ModelStats from './ModelStats';
-import { getPredictionModel, uploadImage } from '@/services/apiService';
-import { PredictionModelType } from '@/types/Types';
+import { getPredictionModel, predictImage } from '@/services/apiService';
+import { PredictionModelType, ClassificationResult, RegressionResult } from '@/types/Types';
 
-type Prediction = {
+type FormattedPrediction = {
   label: string;
   confidence: number;
 };
@@ -15,15 +15,13 @@ type Prediction = {
 const parseLabels = (labelsString: string | null | undefined): string[] => {
   if (!labelsString) return [];
   try {
-    return JSON.parse(labelsString);
-  } catch (e) {
-    const correctedString = `[${labelsString.replace(/'/g, '"')}]`;
-    try {
-      return JSON.parse(correctedString);
-    } catch (finalError) {
-      return [];
+    const labelsArray = JSON.parse(labelsString);
+    if (Array.isArray(labelsArray)) {
+      return labelsArray;
     }
+  } catch (e) {
   }
+  return labelsString.split(',').map(label => label.trim());
 };
 
 const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId: string }> }) => {
@@ -32,7 +30,7 @@ const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId:
   const [modelDetails, setModelDetails] = useState<PredictionModelType | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [prediction, setPrediction] = useState<Prediction[] | null>(null);
+  const [prediction, setPrediction] = useState<FormattedPrediction[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,7 +43,6 @@ const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId:
         console.error(err);
       }
     };
-
     fetchModelDetails();
   }, [params.modelId]);
 
@@ -61,19 +58,29 @@ const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId:
     setError(null);
 
     try {
-      const result = await uploadImage(params.modelId, file);
+      const result = await predictImage(params.modelId, file);
       
-      if (modelDetails && modelDetails.labels) {
-        const labels = parseLabels(modelDetails.labels);
+      if ('scores' in result) {
+        const classificationResult = result as ClassificationResult;
+        const labels = parseLabels(modelDetails?.labels);
+        
         const formattedPrediction = labels.map((label: string, index: number) => ({
           label,
-          confidence: result.prediction[index],
+          confidence: classificationResult.scores[index],
         }));
         
-        formattedPrediction.sort((a: Prediction, b: Prediction) => b.confidence - a.confidence);
-        
+        formattedPrediction.sort((a: FormattedPrediction, b: FormattedPrediction) => b.confidence - a.confidence);
+        setPrediction(formattedPrediction);
+
+      } else if ('predictedValue' in result) {
+        const regressionResult = result as RegressionResult;
+        const formattedPrediction = [{
+          label: regressionResult.predictedLabel,
+          confidence: regressionResult.predictedValue,
+        }];
         setPrediction(formattedPrediction);
       }
+
     } catch (err) {
       let errorMessage = 'Prediction failed. Please try again.';
       if (err instanceof Error) {
@@ -87,25 +94,21 @@ const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId:
   };
 
   if (error && !isProcessing) {
-    return <div className="min-h-screen p-8 text-red-500">{error}</div>;
+    return <div className="min-h-screen mt-20 p-8 text-red-500">{error}</div>;
   }
 
   if (!modelDetails) {
-    return <div className="min-h-screen p-8">Loading model details...</div>;
+    return <div className="min-h-screen mt-20 p-8">Loading model details...</div>;
   }
   
   const stats = {
-    accuracy: 0, 
-    totalPredictions: 0,
-    name: modelDetails.modelName,
     version: modelDetails.version,
-    description: modelDetails.description || "",
     inputShape: modelDetails.inputShape || "",
-    labels: parseLabels(modelDetails.labels),
+    accuracy: modelDetails.accuracy || 0,
   }
 
   return (
-    <div className="min-h-screen pt-24 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen mt-20 p-4 sm:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-text-primary tracking-tight">{modelDetails.modelName}</h1>
         <p
@@ -116,7 +119,12 @@ const ModelDetailPage = ({ params: paramsPromise }: { params: Promise<{ modelId:
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <ImageUploader onAnalyze={handleAnalysis} isProcessing={isProcessing} />
-        <PredictionResult result={prediction} isProcessing={isProcessing} labels={parseLabels(modelDetails.labels)} />
+        <PredictionResult 
+          result={prediction} 
+          isProcessing={isProcessing} 
+          labels={parseLabels(modelDetails.labels)} 
+          isRegression={modelDetails.numClasses === 1}
+        />
       </div>
 
       <div className="mt-12">

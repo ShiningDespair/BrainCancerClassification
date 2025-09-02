@@ -14,6 +14,7 @@
     "@clerk/nextjs": "^6.31.4",
     "@phosphor-icons/react": "^2.1.10",
     "next": "15.5.0",
+    "next-cloudinary": "^6.16.0",
     "phosphor": "^0.7.1",
     "react": "19.1.0",
     "react-bootstrap": "^2.10.10",

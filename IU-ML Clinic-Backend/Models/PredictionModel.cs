@@ -25,5 +25,11 @@ public partial class PredictionModel
 
     public DateTime CreatedAt { get; set; }
 
+    public decimal? Accuracy { get; set; }
+
+    public int? ToolId { get; set; }
+
     public virtual ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
+
+    public virtual Tool? Tool { get; set; }
 }
